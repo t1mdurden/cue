@@ -1,0 +1,17 @@
+{
+  "name": "cue-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "proof": "electron invisibility-proof.js"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0"
+  },
+  "main": "main.js",
+  "allowScripts": {
+    "electron": true
+  }
+}

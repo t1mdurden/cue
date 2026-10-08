@@ -1,0 +1,27 @@
+{
+  "name": "cue",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A private, local screen-and-audio copilot for macOS: a floating overlay that answers from your screen and your calls",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js",
+    "app": "bash scripts/start-local.sh",
+    "bench": "node scripts/bench.mjs",
+    "eval-context": "node scripts/eval-context.mjs",
+    "server": "node src/server.js",
+    "invisible": "npm --prefix client run proof",
+    "mac-app": "bash scripts/package-mac.sh --install"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.132.1",
+    "@ricky0123/vad-web": "0.0.30",
+    "onnxruntime-web": "1.25.1",
+    "ws": "8.22.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

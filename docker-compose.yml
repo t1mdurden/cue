@@ -1,0 +1,23 @@
+services:
+  cue:
+    build: .
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      PORT: "8787"
+      HOST: "0.0.0.0"
+      CUE_DATA_FILE: "/data/store.json"
+      # Models run on the host (Metal); the container has no GPU. Point at the host's llama.cpp
+      # and whisper.cpp servers. To use a cloud backend instead, pick it in Settings → Model.
+      CUE_LLM_BASE_URL: ${CUE_LLM_BASE_URL:-http://host.docker.internal:8081/v1}
+      CUE_ASR_BASE_URL: ${CUE_ASR_BASE_URL:-http://host.docker.internal:8082/v1}
+      CUE_CHAT_MODEL: ${CUE_CHAT_MODEL:-local}
+      CUE_TRANSCRIPTION_MODEL: ${CUE_TRANSCRIPTION_MODEL:-local}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - cue-data:/data
+
+volumes:
+  cue-data:

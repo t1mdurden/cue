@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Set up Cue</title>
+  <link rel="stylesheet" href="/settings.css">
+</head>
+<body class="setup">
+  <header id="chrome">
+    <div id="title">Set up Cue</div>
+    <nav id="steps">
+      <button data-step="permissions"><b>1</b>Permissions</button>
+      <button data-step="answers"><b>2</b>Answers</button>
+    </nav>
+  </header>
+
+  <main id="pages">
+    <section class="page" data-page="permissions">
+      <div class="content">
+        <h2>Allow what Cue hears and sees</h2>
+        <p class="sub">macOS asks once for each. Cue records nothing until you start a session, and keeps no audio or screenshots on disk.</p>
+        <div id="permission-rows"></div>
+        <div class="foot">
+          <span class="foot-note" id="permissions-note"></span>
+          <button class="pill" id="to-answers">Continue</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" data-page="answers">
+      <div class="content">
+        <h2>Where should answers come from?</h2>
+        <p class="sub">Pick one; you can change it later in Settings → Model. On this Mac nothing leaves the computer. A cloud choice sends your question, the screenshot and the transcript to that provider.</p>
+        <div id="answers"></div>
+        <div class="foot">
+          <button class="link" id="back">Back</button>
+          <span class="foot-note" id="answers-note"></span>
+          <button class="pill" id="finish">Start Cue</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/setup.js"></script>
+</body>
+</html>

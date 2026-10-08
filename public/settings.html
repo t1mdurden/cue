@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cue Settings</title>
+  <link rel="stylesheet" href="/settings.css">
+</head>
+<body>
+
+  <header id="chrome">
+    <div id="title">Cue Settings</div>
+    <nav id="tabs" role="tablist">
+      <button role="tab" data-tab="general"><svg><use href="/icons.svg#i-gear"/></svg><span>General</span></button>
+      <button role="tab" data-tab="modes"><svg><use href="/icons.svg#i-sliders"/></svg><span>Modes</span></button>
+      <button role="tab" data-tab="model"><svg><use href="/icons.svg#i-cpu"/></svg><span>Model</span></button>
+      <button role="tab" data-tab="keybinds"><svg><use href="/icons.svg#i-keyboard"/></svg><span>Keybinds</span></button>
+      <button role="tab" data-tab="audio"><svg><use href="/icons.svg#i-mic"/></svg><span>Audio</span></button>
+      <button role="tab" data-tab="about"><svg><use href="/icons.svg#i-info"/></svg><span>About</span></button>
+    </nav>
+  </header>
+
+  <main id="pages">
+    <!-- General -->
+    <section class="page" data-page="general">
+      <div class="content">
+        <h2>Privacy</h2>
+        <p class="sub">Cue runs on this Mac. Nothing leaves it unless you choose a cloud model on the Model tab.</p>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-eye-off"/></svg></span>
+          <div class="text"><div class="title">Hide from screen sharing</div><div class="desc" id="protection-desc"></div></div>
+          <button class="switch" id="protection" role="switch" aria-checked="true"><span></span></button>
+        </div>
+
+        <h2>Permissions</h2>
+        <p class="sub">What a session needs from macOS. Cue starts no session while one is missing.</p>
+        <div id="permission-rows"></div>
+
+        <h2>Language</h2>
+        <p class="sub">How Cue listens and answers during conversations.</p>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-wave"/></svg></span>
+          <div class="text"><div class="title">Transcription language</div><div class="desc">The language you speak in meetings.</div></div>
+          <select id="audio-language">
+            <option value="en-US">English</option><option value="ru-RU">Russian</option><option value="de-DE">German</option>
+            <option value="es-ES">Spanish</option><option value="fr-FR">French</option><option value="auto">Auto-detect</option>
+          </select>
+        </div>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-languages"/></svg></span>
+          <div class="text"><div class="title">Output language</div><div class="desc">The language answers are written in.</div></div>
+          <select id="display-language">
+            <option value="auto">Same as the question</option><option value="en-US">English</option><option value="ru-RU">Russian</option><option value="de-DE">German</option>
+            <option value="es-ES">Spanish</option><option value="fr-FR">French</option>
+          </select>
+        </div>
+
+        <h2>App</h2>
+        <p class="sub">Cue keeps running in the background until you quit it.</p>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-power"/></svg></span>
+          <div class="text"><div class="title">Quit Cue</div><div class="desc">Closes the overlay. <code>npm run app</code> stops the model servers it started.</div></div>
+          <button class="btn" id="quit">Quit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modes -->
+    <section class="page modes" data-page="modes">
+      <aside id="mode-list"></aside>
+      <div id="mode-editor">
+        <div class="editor-scroll">
+          <input id="mode-name" class="mode-title" placeholder="Mode name" spellcheck="false">
+          <p id="mode-about" class="mode-about"></p>
+          <div id="mode-fields">
+            <label class="field-label" for="mode-prompt">Meeting context</label>
+            <textarea id="mode-prompt" rows="9" placeholder="Who you are, what this conversation is, and how Cue should help."></textarea>
+            <div class="field-label">Files</div>
+            <div id="mode-files"></div>
+            <label id="dropzone">
+              <input id="mode-file" type="file" hidden>
+              <span class="drop-art"><svg><use href="/icons.svg#i-file"/></svg></span>
+              <span class="drop-title">Adding files gives Cue more context</span>
+              <span class="drop-sub">Drag &amp; drop files here, or <b>browse files</b></span>
+            </label>
+          </div>
+        </div>
+        <footer class="editor-foot">
+          <button class="link danger" id="mode-delete">Delete mode</button>
+          <span class="saved" id="mode-saved"></span>
+          <button class="pill" id="mode-activate">Set Active</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Model -->
+    <section class="page" data-page="model">
+      <div class="content">
+        <h2>Where answers come from</h2>
+        <p class="sub">On this Mac nothing leaves the computer. A cloud choice sends your question, the screenshot and the transcript to that provider.</p>
+        <div id="answers"></div>
+        <p class="note" id="env-note"></p>
+      </div>
+    </section>
+
+    <!-- Keybinds -->
+    <section class="page" data-page="keybinds">
+      <div class="content">
+        <h2>Keyboard shortcuts</h2>
+        <p class="sub">Global shortcuts work from any app. Click a shortcut, then press the new keys.</p>
+        <div id="keybinds"></div>
+        <p class="note" id="keybind-note"></p>
+      </div>
+    </section>
+
+    <!-- Audio -->
+    <section class="page" data-page="audio">
+      <div class="content">
+        <h2>Audio</h2>
+        <p class="sub">Test your microphone before a call. The other side is captured from system audio.</p>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-mic"/></svg></span>
+          <div class="text"><div class="title">Microphone source</div><div class="desc" id="mic-desc">Used for your side of the conversation.</div></div>
+          <select id="mic-device"><option value="">System default</option></select>
+        </div>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-gauge"/></svg></span>
+          <div class="text"><div class="title">Test microphone</div><div class="meter"><span id="meter-fill"></span></div></div>
+          <button class="btn" id="mic-test">Test Microphone</button>
+        </div>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-monitor"/></svg></span>
+          <div class="text"><div class="title">System audio</div><div class="desc">Captured with Core Audio taps (macOS 14.2+) while a session runs; it becomes "Them" in the transcript.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="page" data-page="about">
+      <div class="content">
+        <h2>Cue</h2>
+        <p class="sub" id="version"></p>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-shield"/></svg></span>
+          <div class="text"><div class="title">What stays on this Mac</div><div class="desc">Transcripts, answers, modes and history are kept in <code>data/store.json</code> on this Mac, with conversation content encrypted at rest (AES-256-GCM; the key lives in the macOS Keychain); screenshots and audio are never written to disk. With the local model nothing is sent anywhere; with Claude or OpenAI the question, screenshot and transcript go to that provider.</div></div>
+        </div>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-server"/></svg></span>
+          <div class="text"><div class="title">Chat model</div><div class="desc" id="status-chat">Checking…</div></div>
+          <span class="dot" id="dot-chat"></span>
+        </div>
+        <div class="row">
+          <span class="ibox"><svg><use href="/icons.svg#i-wave"/></svg></span>
+          <div class="text"><div class="title">Transcription</div><div class="desc" id="status-asr">Checking…</div></div>
+          <span class="dot" id="dot-asr"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/settings.js"></script>
+</body>
+</html>

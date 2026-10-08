@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cue</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Icons: Lucide (ISC licence), inlined so the overlay loads nothing from the network. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-cue" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+      <symbol id="i-image-off" viewBox="0 0 24 24"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2.2" fill="currentColor" stroke="none"/><rect x="13" y="4" width="7" height="7" rx="2.2" fill="currentColor" stroke="none"/><rect x="4" y="13" width="7" height="7" rx="2.2" fill="currentColor" stroke="none"/><rect x="13" y="13" width="7" height="7" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></symbol>
+      <symbol id="i-enter" viewBox="0 0 24 24"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+      <symbol id="i-chat-plus" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v6"/><path d="M9 10h6"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="panel" data-state="home">
+    <header id="top">
+      <button id="back" class="icon-btn back" title="Back" aria-label="Back to home"><svg><use href="#i-back"/></svg></button>
+      <div id="field">
+        <textarea id="chat-input" rows="1" spellcheck="false" placeholder="Ask about your screen or the call" aria-label="Ask about your screen or the call"></textarea>
+        <span id="tab-hint" aria-hidden="true"><kbd>Tab</kbd> to focus</span>
+        <button id="send" class="send" title="Ask (Cmd+Enter)" aria-label="Send message"><svg><use href="#i-enter"/></svg></button>
+      </div>
+      <button id="back-to-chat" class="text-btn" hidden>Back to chat</button>
+      <span id="search-icon" class="search-icon" aria-hidden="true"><svg><use href="#i-search"/></svg></span>
+    </header>
+
+    <main id="body">
+      <section id="chat" class="view">
+        <div id="transcript" aria-live="polite"></div>
+        <div id="messages"></div>
+        <div id="notice" hidden><span id="notice-text"></span><button id="notice-continue" class="text-btn">Continue</button></div>
+        <div id="status" role="status"></div>
+      </section>
+      <section id="history" class="view">
+        <div id="history-list"></div>
+      </section>
+    </main>
+
+    <footer id="toolbar">
+      <div class="left">
+        <button id="settings-btn" class="icon-btn" title="Settings (Cmd+,)" aria-label="Open Settings"><svg><use href="#i-cue"/></svg></button>
+      </div>
+      <div class="center">
+        <button id="listen" class="icon-btn listen" title="Listen (Cmd+Shift+\)" aria-label="Listen"><svg><use href="#i-wave"/></svg><span class="label">Listen</span><span class="live-dot"></span><span id="timer">0:00</span></button>
+        <button id="screen-use" class="icon-btn" role="switch" aria-checked="true" title="Use screen"><svg><use href="#i-image"/></svg></button>
+        <button id="detectable" class="icon-btn" role="switch" aria-checked="false" title="Hidden from screen sharing"><svg><use href="#i-eye-off"/></svg></button>
+        <button id="modes-btn" class="icon-btn" aria-haspopup="menu" title="Modes"><svg><use href="#i-grid"/></svg></button>
+      </div>
+      <div class="right">
+        <button id="history-btn" class="tool-btn" data-for="home">History <span class="kbd"><svg><use href="#i-down"/></svg></span></button>
+        <button id="new-chat" class="tool-btn" data-for="chat">New Chat <span class="keys"><kbd>⌘</kbd><kbd>R</kbd></span></button>
+        <div class="history-actions" data-for="history">
+          <button id="open-session" class="tool-btn strong">Open <span class="kbd"><svg><use href="#i-enter"/></svg></span></button>
+          <span class="divider"></span>
+          <button id="history-new-chat" class="tool-btn dim"><svg class="lead"><use href="#i-chat-plus"/></svg>New chat <span class="keys"><kbd>⌘</kbd><kbd>R</kbd></span></button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modes-menu" role="menu" hidden></div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
