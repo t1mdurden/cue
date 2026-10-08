@@ -78,7 +78,8 @@ codesign -d -r- "$OUT" 2>&1 | grep -q 'certificate leaf' || { echo "[package] si
 echo "[package] built $OUT ($(du -sh "$OUT" | cut -f1))"
 
 if [ "${1:-}" = "--install" ]; then
-  if pgrep -f "/Applications/Cue.app/Contents/MacOS/Cue" >/dev/null; then
+  # -x: the whole command line, so a shell whose text merely mentions the path does not count.
+  if pgrep -xf "/Applications/Cue.app/Contents/MacOS/Cue" >/dev/null; then
     echo "[package] Cue is running — quit it (Settings > General > Quit) and run this again" >&2; exit 1
   fi
   rm -rf /Applications/Cue.app
