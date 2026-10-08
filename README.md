@@ -24,6 +24,14 @@ Anthropic or OpenAI API, or any OpenAI-compatible endpoint instead.
 
 ## Quick start
 
+**Download:** a ready-built `Cue.app` for Apple silicon is on the
+[Releases page](https://github.com/t1mdurden/cue/releases). It is not notarized, so macOS blocks the
+first launch: open it once, then allow it in System Settings → Privacy & Security → *Open Anyway*
+(or run `xattr -dr com.apple.quarantine /Applications/Cue.app`). Answers on this Mac still need
+`brew install llama.cpp whisper-cpp`.
+
+**Or build it from source:**
+
 ```bash
 git clone https://github.com/t1mdurden/cue.git && cd cue
 npm ci
