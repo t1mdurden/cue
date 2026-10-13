@@ -11,12 +11,14 @@ const openAIBase = "https://api.openai.com/v1";
 // The Claude models Settings offers for both Claude backends, best first. Full IDs only: the CLI's
 // aliases drift with its version, so an alias would silently change the model under an update.
 // Measured 2026-10-08 through the subscription (scripts/eval-context.mjs, low effort, first word
-// p50): Fable 1.6 s, Sonnet 2.3 s, Opus 2.8 s.
+// p50): Fable 1.6 s, Sonnet 2.3 s, Opus 2.8 s. `apiDesc` is what Settings says under the Anthropic
+// API, where the order differs: Artificial Analysis (2026-10-08, low effort, 10k-token text prompt)
+// puts Sonnet's first chunk at 1.05 s and Fable's at 3.62 s; not yet measured on Cue's own eval.
 export const claudeModels = [
-  { id: "claude-fable-5-1", label: "Fable 5.1", desc: "Best answers; fastest first word on the subscription" },
-  { id: "claude-opus-5-5", label: "Opus 5.5", desc: "Deepest thinking; slow to start on hard questions" },
-  { id: "claude-sonnet-5-5", label: "Sonnet 5.5", desc: "Fast all-rounder" },
-  { id: "claude-haiku-4-5", label: "Haiku 4.5", desc: "Cheapest and shortest answers" },
+  { id: "claude-fable-5-1", label: "Fable 5.1", desc: "Best answers; fastest first word on the subscription", apiDesc: "Best answers; slower to the first word than Sonnet on the API" },
+  { id: "claude-opus-5-5", label: "Opus 5.5", desc: "Deepest thinking; slow to start on hard questions", apiDesc: "Deepest thinking; slow to start on hard questions" },
+  { id: "claude-sonnet-5-5", label: "Sonnet 5.5", desc: "Fast all-rounder", apiDesc: "Fastest first word on the API (about 1 s on a text prompt, Artificial Analysis 2026-10)" },
+  { id: "claude-haiku-4-5", label: "Haiku 4.5", desc: "Cheapest and shortest answers", apiDesc: "Cheapest and shortest answers" },
 ];
 export const claudeEfforts = ["low", "medium", "high"];
 // Stores written before full IDs used the CLI's aliases, and one release listed a Haiku that does
@@ -85,7 +87,9 @@ export const config = {
     if (this.llmBackend === "compatible") return this.compatibleModel;
     return process.env.CUE_CHAT_MODEL || "local";
   },
-  // Speech: "local" whisper.cpp (default) or "openai" with the stored OpenAI key.
+  // Speech: "local" whisper.cpp (default) or "openai" with the stored OpenAI key. OpenAI's
+  // gpt-transcribe makes fewer errors than the local large-v3-turbo (Artificial Analysis WER v2,
+  // 2026-10-08: 3.31% vs 4.62%); CUE_TRANSCRIPTION_MODEL picks another OpenAI transcription model.
   asrBackend: process.env.CUE_ASR_BACKEND || "local",
   get asrBaseUrl() {
     if (process.env.CUE_ASR_BASE_URL) return process.env.CUE_ASR_BASE_URL;
@@ -94,7 +98,7 @@ export const config = {
   get asrApiKey() { return this.asrBackend === "openai" ? keys.openai : ""; },
   get transcriptionModel() {
     if (process.env.CUE_TRANSCRIPTION_MODEL) return process.env.CUE_TRANSCRIPTION_MODEL;
-    return this.asrBackend === "openai" ? "gpt-4o-mini-transcribe" : "local";
+    return this.asrBackend === "openai" ? "gpt-transcribe" : "local";
   },
   // Inactivity: 6 min without transcript/message change, then 40 s to continue.
   inactivityMs: Number(process.env.CUE_INACTIVITY_MS || 360000),

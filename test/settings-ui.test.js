@@ -63,19 +63,19 @@ const readSelect = `const s = document.getElementById("asr-backend");
 
 test("Settings offers OpenAI transcription and says it needs a key while none is set", { skip, timeout: 30_000 }, async () => {
   await withServer({ CUE_LLM_BACKEND: "local" }, async () => {
-    assert.deepEqual(await page(readSelect), { options: [["local", "This Mac"], ["openai", "OpenAI"]], value: "local" });
+    assert.deepEqual(await page(readSelect), { options: [["local", "This Mac"], ["openai", "OpenAI, more accurate"]], value: "local" });
     const desc = await page(`const s = document.getElementById("asr-backend");
       s.value = "openai";
       s.dispatchEvent(new Event("change"));
       for (let i = 0; i < 100 && !/OpenAI, with/.test(document.querySelector("#asr-backend").closest(".row").textContent); i++) await new Promise((r) => setTimeout(r, 50));
       return document.querySelector("#asr-backend").closest(".row").querySelector(".desc").textContent;`);
-    assert.equal(desc, "OpenAI, with your OpenAI API key (not set yet: add it under OpenAI API). Your audio goes to OpenAI.");
+    assert.equal(desc, "OpenAI, with your OpenAI API key (not set yet: add it under OpenAI API). Your audio goes to OpenAI. gpt-transcribe: about a third fewer errors than whisper on this Mac (word error rate 3.3% vs 4.6%, Artificial Analysis, 2026-10).");
   });
 });
 
 test("choosing OpenAI transcription in Settings reaches the server and survives a reload", { skip, timeout: 30_000 }, async () => {
   await withServer({ CUE_LLM_BACKEND: "local", OPENAI_API_KEY: "sk-test" }, async () => {
-    assert.deepEqual(await page(readSelect), { options: [["local", "This Mac"], ["openai", "OpenAI"]], value: "local" });
+    assert.deepEqual(await page(readSelect), { options: [["local", "This Mac"], ["openai", "OpenAI, more accurate"]], value: "local" });
     await page(`const s = document.getElementById("asr-backend");
       s.value = "openai";
       s.dispatchEvent(new Event("change"));
@@ -156,5 +156,37 @@ test("a sign-in that fails at once says so instead of waiting for the browser", 
       for (let i = 0; i < 160 && !/^Sign-in failed/.test(document.getElementById("claude-auth").textContent); i++) await new Promise((r) => setTimeout(r, 50));
       return document.getElementById("claude-auth").textContent;`);
     assert.equal(text, "Sign-in failed: error: unknown option '--claudeai'");
+  });
+});
+
+// Settings → Modes → Optimize: the model's tighter prompt lands in the editor and is saved; Undo
+// puts the old text back. The mock model echoes its input, which is enough to see the round trip.
+test("Optimize rewrites the selected mode's prompt in the editor, saves it, and Undo restores it", { skip, timeout: 30_000 }, async () => {
+  await withServer({ CUE_LLM_BACKEND: "local" }, async () => {
+    const headers = { authorization: "Bearer dev-token", "content-type": "application/json" };
+    const created = await fetch(`${base}/rpc/modes/create`, { method: "POST", headers, body: JSON.stringify({ json: { name: "Interview", chatPrompt: "Answer briefly. Answer briefly." }, meta: [] }) });
+    const mode = (await created.json()).json;
+    const result = await page(`
+      document.querySelector('#tabs button[data-tab="modes"]').click();
+      for (let i = 0; i < 100 && ![...document.querySelectorAll("#mode-list .m-row")].some((r) => r.textContent.includes("Interview")); i++) await new Promise((r) => setTimeout(r, 50));
+      [...document.querySelectorAll("#mode-list .m-row")].find((r) => r.textContent.includes("Interview")).click();
+      for (let i = 0; i < 100 && document.getElementById("mode-prompt").value !== "Answer briefly. Answer briefly."; i++) await new Promise((r) => setTimeout(r, 50));
+      const before = { optimizeHidden: document.getElementById("mode-optimize").hidden, undoHidden: document.getElementById("mode-undo").hidden };
+      document.getElementById("mode-optimize").click();
+      for (let i = 0; i < 200 && !/^Optimized:/.test(document.getElementById("mode-saved").textContent); i++) await new Promise((r) => setTimeout(r, 50));
+      const after = { saved: document.getElementById("mode-saved").textContent, prompt: document.getElementById("mode-prompt").value, undoHidden: document.getElementById("mode-undo").hidden };
+      const stored = (await (await fetch("/rpc/modes/get", { method: "POST", headers: ${JSON.stringify(headers)}, body: JSON.stringify({ json: { id: "${mode.id}" }, meta: [] }) })).json()).json.chatPrompt;
+      document.getElementById("mode-undo").click();
+      for (let i = 0; i < 100 && document.getElementById("mode-saved").textContent !== "Previous prompt restored."; i++) await new Promise((r) => setTimeout(r, 50));
+      const restored = (await (await fetch("/rpc/modes/get", { method: "POST", headers: ${JSON.stringify(headers)}, body: JSON.stringify({ json: { id: "${mode.id}" }, meta: [] }) })).json()).json.chatPrompt;
+      return { before, after, stored, restored, editor: document.getElementById("mode-prompt").value, undoHidden: document.getElementById("mode-undo").hidden };`, "/settings.html#modes");
+    assert.deepEqual(result.before, { optimizeHidden: false, undoHidden: true });
+    assert.match(result.after.prompt, /^\[cue local\] <instructions>\s*Answer briefly\. Answer briefly\./);
+    assert.match(result.after.saved, /^Optimized: 31 → \d+ characters, saved\.$/);
+    assert.equal(result.after.undoHidden, false);
+    assert.equal(result.stored, result.after.prompt, "the optimized prompt is saved");
+    assert.equal(result.restored, "Answer briefly. Answer briefly.", "Undo saves the previous prompt back");
+    assert.equal(result.editor, "Answer briefly. Answer briefly.");
+    assert.equal(result.undoHidden, true);
   });
 });

@@ -13,7 +13,8 @@ export async function transcribe({ wavBase64, language }) {
   form.append("file", new Blob([wav.buffer], { type: "audio/wav" }), "audio.wav");
   form.append("model", config.transcriptionModel);
   const lang = String(language || "").split("-")[0];
-  if (lang && lang !== "auto") form.append("language", lang);
+  // gpt-transcribe takes the possible languages as a list; the other models take one `language`.
+  if (lang && lang !== "auto") form.append(config.transcriptionModel === "gpt-transcribe" ? "languages[]" : "language", lang);
   form.append("response_format", "json");
   const response = await reach(config.asrBaseUrl, "/audio/transcriptions", {
     method: "POST",

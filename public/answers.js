@@ -220,9 +220,12 @@ export function mountAnswers(container, { onReady = () => {}, onChange = () => {
     return [claudeModelRow(), account];
   }
 
+  // The same models read differently under the subscription and the API (src/config.js).
+  const modelDesc = (model) => (settings.llmBackend === "anthropic" ? model?.apiDesc : model?.desc) || settings.claudeModel;
+
   function claudeModelRow() {
     const row = h(`<div class="row"><span class="ibox"><svg><use href="/icons.svg#i-sparkles"/></svg></span>
-      <div class="text"><div class="title">Claude model</div><div class="desc" id="claude-model-desc">${esc(settings.claudeModels.find((m) => m.id === settings.claudeModel)?.desc || settings.claudeModel)}</div></div>
+      <div class="text"><div class="title">Claude model</div><div class="desc" id="claude-model-desc">${esc(modelDesc(settings.claudeModels.find((m) => m.id === settings.claudeModel)))}</div></div>
       <select id="claude-model">${settings.claudeModels.map((m) => `<option value="${m.id}">${esc(m.label)}</option>`).join("")}</select>
       <select id="claude-effort">${settings.claudeEfforts.map((e) => `<option value="${e}">${e[0].toUpperCase()}${e.slice(1)} effort</option>`).join("")}</select></div>`);
     row.querySelector("#claude-model").value = settings.claudeModel;
@@ -297,9 +300,9 @@ export function mountAnswers(container, { onReady = () => {}, onChange = () => {
   function speechRow() {
     const row = h(`<div class="row"><span class="ibox"><svg><use href="/icons.svg#i-wave"/></svg></span>
       <div class="text"><div class="title">Transcription</div><div class="desc">${settings.asrBackend === "local"
-        ? `whisper.cpp on this Mac${catalogue && !catalogue.whisper.present ? ` · speech model not downloaded (${gb(catalogue.whisper.sizeGb)})` : ""}. Audio never leaves the Mac.`
-        : `OpenAI, with your OpenAI API key${settings.keys.openai.set ? "" : " (not set yet: add it under OpenAI API)"}. Your audio goes to OpenAI.`}</div></div>
-      <select id="asr-backend"><option value="local">This Mac</option><option value="openai">OpenAI</option></select></div>`);
+        ? `whisper.cpp on this Mac${catalogue && !catalogue.whisper.present ? ` · speech model not downloaded (${gb(catalogue.whisper.sizeGb)})` : ""}. Audio never leaves the Mac. OpenAI's gpt-transcribe makes about a third fewer errors.`
+        : `OpenAI, with your OpenAI API key${settings.keys.openai.set ? "" : " (not set yet: add it under OpenAI API)"}. Your audio goes to OpenAI. ${esc(settings.info.transcriptionModel)}: about a third fewer errors than whisper on this Mac (word error rate 3.3% vs 4.6%, Artificial Analysis, 2026-10).`}</div></div>
+      <select id="asr-backend"><option value="local">This Mac</option><option value="openai">OpenAI, more accurate</option></select></div>`);
     row.querySelector("#asr-backend").value = settings.asrBackend;
     row.querySelector("#asr-backend").onchange = async (event) => { await save({ asrBackend: event.target.value }); refresh(); };
     return row;

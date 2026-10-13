@@ -3,9 +3,10 @@ import { readFileSync } from "node:fs";
 import { applySavedSettings, backends, claudeEfforts, claudeModelId, claudeModels, config, endpointPresets, envDefaults, keyNames, keyStatus, keys } from "./config.js";
 import { claudeAuthStatus, claudeLoginError, startClaudeLogin, stopAllClaudeSessions } from "./claude-backend.js";
 import { RpcError, validationError } from "./errors.js";
-import { listEndpointModels, testChat, transcribe } from "./providers.js";
-import { extractText } from "./extract.js";
+import { complete, listEndpointModels, testChat, transcribe } from "./providers.js";
+import { PER_FILE_CHARS, extractText } from "./extract.js";
 import { modeTemplates } from "./modeTemplates.js";
+import { optimizeModePrompt } from "./prompts.js";
 import { cancelDownload, catalogue, downloadStatus, listRepo, recommendedModel, resolveModel, startDownload, whisperModel } from "./models.js";
 import { imageTokens, localServerStatus, syncLocalServers } from "./local-servers.js";
 import { existsSync } from "node:fs";
@@ -153,6 +154,7 @@ function sessionTagRpc(store, method, input = {}, user) {
 }
 
 function modeRpc(store, method, input = {}, user) {
+  if (method === "optimize") return optimizeMode(store, input, user);
   switch (method) {
     case "templates":
       return { items: modeTemplates };
@@ -192,6 +194,22 @@ function modeRpc(store, method, input = {}, user) {
     default:
       throw unknown(`modes/${method}`);
   }
+}
+
+// The chosen model rewrites a mode's prompt, with the facts of its short files folded in. Nothing
+// is saved here: the page shows the result in the editor, where the person edits, keeps or undoes it.
+// Files longer than PER_FILE_CHARS never ride in the system prompt (each turn gets their matching
+// sections instead), so they are not part of what is being tightened.
+async function optimizeMode(store, input, user) {
+  const mode = store.mode(user, requireId(input).id);
+  const files = mode.files.filter((file) => file.text && file.text.length <= PER_FILE_CHARS);
+  const prompt = [
+    `<instructions>\n${mode.chatPrompt || ""}\n</instructions>`,
+    ...files.map((file) => `<file name="${file.name.replace(/"/g, "'")}">\n${file.text}\n</file>`),
+  ].join("\n\n");
+  const chatPrompt = (await complete({ system: optimizeModePrompt, prompt })).trim();
+  if (!chatPrompt) throw new RpcError({ code: "INTERNAL_SERVER_ERROR", status: 500, message: "The model returned nothing." });
+  return { chatPrompt, before: (mode.chatPrompt || "").length, after: chatPrompt.length, files: files.map((file) => file.name) };
 }
 
 async function modeFileRpc(store, method, input = {}, user) {
@@ -284,6 +302,7 @@ export function effectiveSettings(store) {
       chatModel: config.chatModel,
       llmBaseUrl: config.llmBaseUrl,
       asrBaseUrl: config.asrBaseUrl,
+      transcriptionModel: config.transcriptionModel,
       localModel: resolveModel(config.localModel).label,
       imageTokens,
     },

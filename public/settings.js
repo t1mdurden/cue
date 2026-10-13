@@ -297,7 +297,41 @@ function renderEditor() {
   $("mode-activate").textContent = isActive ? (general ? "Active" : "Deactivate") : "Set Active";
   $("mode-activate").classList.toggle("done", isActive);
   $("mode-delete").hidden = selected.kind !== "mode";
+  $("mode-optimize").hidden = general;
+  $("mode-undo").hidden = general || !undo || undo.id !== item?.id;
 }
+
+// Optimize: the model's tighter prompt goes into the editor and saves like any edit; Undo puts the
+// previous text back. Files stay attached: the person removes the ones the new text now covers.
+let undo = null; // { id, chatPrompt } of the prompt before the last Optimize
+$("mode-optimize").onclick = async () => {
+  flushSave();
+  const mode = await ensureOwnMode();
+  $("mode-optimize").disabled = true;
+  $("mode-saved").textContent = "Optimizing with the chosen model…";
+  try {
+    const result = await rpc("modes/optimize", { id: mode.id });
+    undo = { id: mode.id, chatPrompt: $("mode-prompt").value };
+    $("mode-prompt").value = result.chatPrompt;
+    await rpc("modes/update", { id: mode.id, chatPrompt: result.chatPrompt });
+    await renderModeList();
+    const files = result.files.length ? ` Facts from ${result.files.join(", ")} are folded in; remove those files if the text now covers them.` : "";
+    $("mode-saved").textContent = `Optimized: ${result.before.toLocaleString()} → ${result.after.toLocaleString()} characters, saved.${files}`;
+  } catch (error) {
+    $("mode-saved").textContent = `Could not optimize: ${error.message}`;
+  } finally {
+    $("mode-optimize").disabled = false;
+  }
+};
+$("mode-undo").onclick = async () => {
+  if (!undo) return;
+  const { id, chatPrompt } = undo;
+  undo = null;
+  $("mode-prompt").value = chatPrompt;
+  await rpc("modes/update", { id, chatPrompt });
+  await renderModeList();
+  $("mode-saved").textContent = "Previous prompt restored.";
+};
 
 // A template turns into the person's own mode the first time it is edited or activated.
 async function ensureOwnMode() {
